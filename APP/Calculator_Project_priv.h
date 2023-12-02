@@ -24,6 +24,4 @@
 #define NUM_NEG  1
 u8 Isoperator(u8 key);
 u8 Isnum( u8 key);
-
-void LCD_enuDisplayNumWithFraction(f32 number);
 #endif /* CALCULATOR_PROJECT_PRIV_H_ */

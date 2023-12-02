@@ -1,5 +1,4 @@
-/*
- * Calculator_Project_prog.c
+* Calculator_Project_prog.c
  *
  *  Created on: Nov 28, 2023
  *      Author: Samar ibrahim
@@ -21,7 +20,7 @@
 
 #include "util/delay.h"
 /*Variable*/
-s8 op1 = RESET, op2 = RESET, num = RESET;
+s32 op1 = RESET, op2 = RESET, num = RESET;
 u8 operator = RESET, signflag = RESET, key = KEY_NOT_PRESSED;
 f32 result=RESET;
 
@@ -37,7 +36,7 @@ void Cal_enuRun(void) {
     LCD_enuWriteString("WELCOME TO CAL.", 0, 0);
     _delay_ms(300);
     LCD_vidClearScreen();
-    LCD_enuGoToPosition(0, 0);
+   // LCD_enuGoToPosition(0, 0);
     key = KEY_NOT_PRESSED;
 
     while(1){
@@ -55,8 +54,8 @@ void Cal_enuRun(void) {
     		                op2 = num;
 
     		                LCD_enuDisplayChar(key);
-    		                //LCD_enuDisplayChar('A');
-    		                //LCD_enuDisplayNum(op1);
+    		               // LCD_enuDisplayChar('A');
+    		               // LCD_enuDisplayNum(op1);
     		                //LCD_enuDisplayNum(op2);
     		                key = KEY_NOT_PRESSED;
     		                Calculator(operator);
@@ -80,20 +79,28 @@ void Cal_enuRun(void) {
     		//result=RESET;
     	}
     	else if (key == '-') {
-    	    if (num == RESET && (operator == RESET || operator != RESET)) {
+    	    if (num == RESET  && (operator == RESET || operator != RESET)) {
     	        // Case where '-' is pressed when no number is entered yet
     	        if (op1 != RESET && operator == RESET) {
     	            operator = key;
     	        }
-    	        signflag = NUM_NEG;
-    	        num = -num;
+    	        else{
+    	        	signflag = NUM_NEG;
+    	        	 //   num = -num;
+    	        }
+
     	        LCD_enuDisplayChar(key);
     	        key = KEY_NOT_PRESSED;
     	    } else {
     	        // Case where '-' is pressed after a number and possibly an operator
     	        operator = key;
     	        if (op1 == RESET) {
-    	            op1 = num;
+    	        	if(signflag==NUM_NEG){
+    	        		 num = -num;
+    	        		 signflag=0;
+    	        	}
+    	        	 op1 = num;
+
     	        }
     	        num = RESET;
     	        LCD_enuDisplayChar(key);
@@ -173,7 +180,7 @@ void LCD_enuDisplayNumWithFraction(f32 number) {
     LCD_enuDisplayChar('.');
 
     // Print leading zeros for the fractional part
-    if (fractionalPart < 10) LCD_enuDisplayChar('0');
+    if (fractionalPart < 10) {LCD_enuDisplayChar('0');}
 
     LCD_enuDisplayNum(fractionalPart);
 }
