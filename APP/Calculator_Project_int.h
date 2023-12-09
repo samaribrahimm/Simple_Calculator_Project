@@ -8,7 +8,7 @@
 #ifndef CALCULATOR_PROJECT_INT_H_
 #define CALCULATOR_PROJECT_INT_H_
 
-void Calculator(u8 opr);
 
+void Cal_enuRun(void);
 
 #endif /* CALCULATOR_PROJECT_INT_H_ */

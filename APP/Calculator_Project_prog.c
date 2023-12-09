@@ -1,4 +1,5 @@
-* Calculator_Project_prog.c
+/*
+ * Calculator_Project_prog.c
  *
  *  Created on: Nov 28, 2023
  *      Author: Samar ibrahim
@@ -42,6 +43,7 @@ void Cal_enuRun(void) {
     while(1){
     	 Keypad_enuGetPressedKey(&key);
     	 _delay_ms(30);
+    	 label:
     	if(key==EQUAL){  // if user pressed '='
 
     		/*check is neg num*/
@@ -54,17 +56,30 @@ void Cal_enuRun(void) {
     		                op2 = num;
 
     		                LCD_enuDisplayChar(key);
-    		               // LCD_enuDisplayChar('A');
-    		               // LCD_enuDisplayNum(op1);
-    		                //LCD_enuDisplayNum(op2);
+
     		                key = KEY_NOT_PRESSED;
     		                Calculator(operator);
+                            while(key!=CALCULATOR_ON){
+                            	Keypad_enuGetPressedKey(&key);
+                            	if(Isoperator(key)){
+                            		op1 = result;							/* last result is the 1st operand */
+                            		LCD_vidClearScreen();										/* clear the screen */
+                            		LCD_enuDisplayNum(op1)	;					/* display op1 on lcd */
+                            		operator = key;			/* save value of opcode */
+                            		//LCD_enuDisplayChar(key);			/* display opcode on lcd */
+                            		goto label;
+                            		//Calculator(operator);								/* get the value of the 2nd operand */
+                            	}
+                            }
+                            LCD_vidClearScreen();
+                            result = RESET,op1=RESET,op2=RESET;
 
 
 
     		            } else {
     		                LCD_enuDisplayChar(key);
     		                result = num;
+
     		                LCD_enuDisplayNum(result);
     		                key = KEY_NOT_PRESSED;
     		            }
@@ -74,42 +89,42 @@ void Cal_enuRun(void) {
     	}
     	else if(key==CALCULATOR_ON){
     		LCD_vidClearScreen();
-    		op1 = RESET, op2 = RESET, num = RESET;
-    		operator = RESET, signflag = RESET, key = KEY_NOT_PRESSED;
-    		//result=RESET;
+    		result=RESET, op1 = RESET, operator=RESET , op2 = RESET, num = RESET, signflag = RESET, key = KEY_NOT_PRESSED;
     	}
-    	else if (key == '-') {
-    	    if (num == RESET  && (operator == RESET || operator != RESET)) {
-    	        // Case where '-' is pressed when no number is entered yet
-    	        if (op1 != RESET && operator == RESET) {
-    	            operator = key;
-    	        }
-    	        else{
-    	        	signflag = NUM_NEG;
-    	        	 //   num = -num;
-    	        }
 
-    	        LCD_enuDisplayChar(key);
-    	        key = KEY_NOT_PRESSED;
-    	    } else {
-    	        // Case where '-' is pressed after a number and possibly an operator
-    	        operator = key;
-    	        if (op1 == RESET) {
-    	        	if(signflag==NUM_NEG){
-    	        		 num = -num;
-    	        		 signflag=0;
-    	        	}
-    	        	 op1 = num;
-
-    	        }
-    	        num = RESET;
-    	        LCD_enuDisplayChar(key);
-    	        key = KEY_NOT_PRESSED;
-    	    }
-    	}
 
     	else if(Isoperator(key)){
 
+    		if (key == '-') {
+    		    	    if (num == RESET  && (operator == RESET || operator != RESET)) {
+    		    	        // Case where '-' is pressed when no number is entered yet
+    		    	        if (op1 != RESET && operator == RESET) {
+    		    	            operator = key;
+    		    	        }
+    		    	        else{
+    		    	        	signflag = NUM_NEG;
+    		    	        	 //   num = -num;
+    		    	        }
+
+    		    	        LCD_enuDisplayChar(key);
+    		    	        key = KEY_NOT_PRESSED;
+    		    	    } else {
+    		    	        // Case where '-' is pressed after a number and possibly an operator
+    		    	        operator = key;
+    		    	        if (op1 == RESET) {
+    		    	        	if(signflag==NUM_NEG){
+    		    	        		 num = -num;
+    		    	        		 signflag=0;
+    		    	        	}
+    		    	        	 op1 = num;
+
+    		    	        }
+    		    	        num = RESET;
+    		    	        LCD_enuDisplayChar(key);
+    		    	        key = KEY_NOT_PRESSED;
+    		    	    }
+    		    	}
+    		else{
     		 operator = key;
     		if (signflag == NUM_NEG) {
     		    num = -num;
@@ -121,10 +136,12 @@ void Cal_enuRun(void) {
     		num = RESET;
     		LCD_enuDisplayChar(key);
     		key = KEY_NOT_PRESSED;
-    	}
+    	}}
+
     	else if(Isnum(key)){
     		 num = num * 10 + (key - DIGIT_ZERO);
     		 LCD_enuDisplayChar(key);
+
 
     	}
     }
@@ -132,27 +149,28 @@ void Cal_enuRun(void) {
 
 }
 u8 Isoperator(u8 key){
-	return ((key==ADDITION)||(key==MULTIPLER)||(key==DIVISION));
+	return ((key==ADDITION)||(key==MULTIPLER)||(key==DIVISION)||(key==SUBTRACTOR));
 }
 u8 Isnum( u8 key){
 	return ((key<=DIGIT_NINE)&&(key>=DIGIT_ZERO));
 }
+/*function to calculate sum ,division,sub,and multipler   two operands*/
 void Calculator(u8 opr){
 	switch (opr) {
-	        case '+':
+	        case ADDITION:
 	            result = op1 + op2;
 
 	            LCD_enuDisplayNumWithFraction(result);
 	            break;
-	        case '-':
+	        case SUBTRACTOR:
 	            result = op1 - op2;
 	            LCD_enuDisplayNumWithFraction(result);
 	            break;
-	        case 'x':
+	        case MULTIPLER:
 	            result = op1 * op2;
 	            LCD_enuDisplayNumWithFraction(result);
 	            break;
-	        case '/':
+	        case DIVISION:
 	            if (op2 != 0) {
 	                result = (f32)op1 / op2;
 	                LCD_enuDisplayNumWithFraction(result);
@@ -168,9 +186,27 @@ void Calculator(u8 opr){
 	        default:
 	            break;
 	    }
-
-	op1 = result,   op2 = RESET, num = RESET, signflag = RESET, key = KEY_NOT_PRESSED;
+            /*reset variable*/
+	//op1 = result, operator=RESET , op2 = RESET, num = RESET, signflag = RESET, key = KEY_NOT_PRESSED;
 	}
+void Cal_viRestart(void){
+while(key!=CALCULATOR_ON){
+	            Keypad_enuGetPressedKey(&key);
+	            if(Isoperator(key)){
+	            	op1 = result;							/* last result is the 1st operand */
+	            				LCD_vidClearScreen();										/* clear the screen */
+	            				LCD_enuDisplayNum(op1)	;					/* display op1 on lcd */
+	            				operator = key;			/* save value of opcode */
+	            				LCD_enuDisplayChar(key);			/* display opcode on lcd */
+	            				Calculator(operator);								/* get the value of the 2nd operand */
+	            			}
+	            		}
+	            		LCD_vidClearScreen();
+	            		result = RESET;
+	            }
+
+
+/*fun to display fraction number*/
 
 void LCD_enuDisplayNumWithFraction(f32 number) {
     s32 integerPart = (s32)number;
@@ -184,3 +220,4 @@ void LCD_enuDisplayNumWithFraction(f32 number) {
 
     LCD_enuDisplayNum(fractionalPart);
 }
+
